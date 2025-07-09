@@ -5,6 +5,7 @@ const { Schema } = mongoose;
 // properties we want our users to have
 const userSchema = new Schema(
   {
+    avatar:String,
     googleID: String,
     fullName: {
       type: String,

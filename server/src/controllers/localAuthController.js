@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const setAuthCookie = require('../utils/setAuthCookie');
+const sanitizeUser = require('../utils/sanitizeUser')
+require('dotenv').config();
 
 const User = mongoose.model('User');
 
@@ -42,10 +44,11 @@ exports.signup = async (req, res) => {
     // Send the JWT token as an HTTP-only cookie
     setAuthCookie(res, newUser._id);
 
-    const { password: userPassword, ...sanitizeUser } = newUser._doc;
+    // Destructure the user object to remove sensitive or unnecessary fields before sending to the client
+    const safeToSendUser = sanitizeUser(newUser._doc);
     return res.status(201).json({
       message: 'User successfully registered',
-      user: sanitizeUser,
+      user: safeToSendUser,
     });
   } catch (error) {
     console.log(error);
@@ -85,11 +88,12 @@ exports.login = async (req, res) => {
 
       setAuthCookie(res, existingUser._id);
 
-      const { password: userPassword, ...sanitizeUser } = existingUser._doc;
+      // Destructure the user object to remove sensitive or unnecessary fields before sending to the client
+      const safeToSendUser = sanitizeUser(existingUser._doc);
 
       return res.status(200).json({
         message: 'User successfully logged in',
-        user: sanitizeUser,
+        user: safeToSendUser,
       });
     }
   } catch (error) {
