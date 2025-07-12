@@ -11,6 +11,14 @@ const User = mongoose.model('User');
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
 passport.use(
   new GoogleStrategy(
     {
@@ -62,7 +70,6 @@ app.get(
     res.send('success');
   }
 );
-
 
 app.get('/', (req, res) => {
   res.send('This is my home page ');

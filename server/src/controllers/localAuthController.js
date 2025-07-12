@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const setAuthCookie = require('../utils/setAuthCookie');
-const sanitizeUser = require('../utils/sanitizeUser')
+const sanitizeUser = require('../utils/sanitizeUser');
 require('dotenv').config();
 
 const User = mongoose.model('User');
@@ -72,6 +72,12 @@ exports.login = async (req, res) => {
       return res
         .status(401)
         .json({ error: 'User does not exist! Create an account to continue' });
+    }
+    if (existingUser && existingUser.googleID) {
+      return res.status(409).json({
+        error:
+          'This email is registered with Google. Please sign in with Google.',
+      });
     }
 
     if (existingUser) {
