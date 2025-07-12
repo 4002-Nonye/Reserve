@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const setAuthCookie = require('../utils/setAuthCookie');
 const sanitizeUser = require('../utils/sanitizeUser');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const User = mongoose.model('User');
@@ -118,4 +119,23 @@ exports.logout = async (_, res) => {
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' });
   }
+};
+
+exports.linkAccount = async (req, res) => {
+  const { token } = req.body;
+  console.log(token);
+
+  // retrieve the user object from the token
+  const payload = jwt.verify(token, process.env.JWT_SECRET);
+  const { userEmail, googleID } = payload;
+  console.log(payload);
+  const existingUser = await User.findOne({ email: userEmail });
+  if (!existingUser) {
+    return res.status(404).json({ error: 'User does not exist' });
+  }
+  existingUser.googleID = googleID;
+  await existingUser.save();
+
+  setAuthCookie(res, googleID);
+  return res.status(200).json({ message: 'Account linked successfully' });
 };

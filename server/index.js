@@ -8,6 +8,8 @@ const setAuthCookie = require('./src/utils/setAuthCookie');
 const { default: mongoose } = require('mongoose');
 require('dotenv').config();
 const User = mongoose.model('User');
+const jwt = require('jsonwebtoken');
+const cors = require('cors');
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
@@ -32,10 +34,20 @@ passport.use(
       const { id, displayName, emails, photos } = profile;
 
       const userEmail = emails[0].value;
-      const existingUser = await User.findOne({ userEmail });
-
+      const existingUser = await User.findOne({ email: userEmail });
       if (existingUser) {
-        // prevent duplicate records
+        if (existingUser && !existingUser.googleID) {
+          const token = jwt.sign(
+            { userEmail, googleID: id, displayName },
+            process.env.JWT_SECRET,
+            { expiresIn: '10m' }
+          );
+          return done(null, false, {
+            message: 'LINK_ACCOUNT',
+            token,
+          });
+        }
+
         return done(null, existingUser);
       } else {
         const newUser = await new User({
@@ -50,10 +62,13 @@ passport.use(
   )
 );
 
-require('dotenv').config();
-
 const app = express();
-
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true, // allow cookies if you're using them
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(passport.initialize());
@@ -63,19 +78,27 @@ app.get(
   passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
-app.get(
-  '/auth/google/callback',
-  passport.authenticate('google', { session: false }),
-  (req, res) => {
-    res.send('success');
-  }
-);
+app.get('/auth/google/callback', (req, res, next) =>
+  passport.authenticate('google', { session: false }, (err, user, info) => {
+    console.log(err, user, info);
+    if (info?.message === 'LINK_ACCOUNT') {
+      const token = info.token;
+      return res.redirect(`http://localhost:5173/link-account/?token=${token}`);
+    }
 
+    if (!user) {
+      res.send('User does not exist');
+    }
+
+    return res.send('success');
+  })(req, res, next)
+);
 app.get('/', (req, res) => {
   res.send('This is my home page ');
 });
 
 app.listen(process.env.PORT, () => {
   // Connect to the database after server starts
+  console.log(process.env.PORT);
   connectDB();
 });
