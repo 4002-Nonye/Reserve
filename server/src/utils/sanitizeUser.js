@@ -1,5 +1,6 @@
 const sanitizeUser = (doc) => {
-  const { __v, password, ...user } = doc;
+  const { __v, password, resetPasswordToken, resetPasswordExpires, ...user } =
+    doc;
   return user;
 };
 

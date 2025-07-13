@@ -5,8 +5,9 @@ const { Schema } = mongoose;
 // properties we want our users to have
 const userSchema = new Schema(
   {
-    avatar:String,
+    avatar: String,
     googleID: String,
+
     fullName: {
       type: String,
       required: true,
@@ -25,6 +26,8 @@ const userSchema = new Schema(
       enum: ['customer', 'business_owner'],
       default: 'customer',
     },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
   },
   {
     timestamps: true,

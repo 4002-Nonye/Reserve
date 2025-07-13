@@ -1,12 +1,11 @@
 const mongoose = require('mongoose');
-const passport = require('passport')
+const passport = require('passport');
+const sanitizeUser = require('../utils/sanitizeUser');
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 require('dotenv').config();
 const User = mongoose.model('User');
-
-
 
 passport.serializeUser((user, done) => {
   done(null, user);
@@ -15,10 +14,6 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((user, done) => {
   done(null, user);
 });
-
-
-
-
 
 module.exports = passport.use(
   new GoogleStrategy(
@@ -36,13 +31,11 @@ module.exports = passport.use(
       const userEmail = emails[0].value;
       const existingUser = await User.findOne({ email: userEmail });
       if (existingUser) {
-
         // CASE : User initially signed up with email and password,
         // then the user tries to login with google using same email account
         // we prompt the user to link their account (can sign in with both password and google)
         if (existingUser && !existingUser.googleID) {
-
-          // store user information in a token 
+          // store user information in a token
           const token = jwt.sign(
             { userEmail, googleID: id, displayName },
             process.env.JWT_SECRET,
@@ -55,8 +48,8 @@ module.exports = passport.use(
             token,
           });
         }
-
-        return done(null, existingUser);
+        const safeToSendUser = sanitizeUser(existingUser._doc);
+        return done(null, safeToSendUser);
       } else {
         const newUser = await new User({
           googleID: id,
