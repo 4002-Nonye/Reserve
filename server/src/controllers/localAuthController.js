@@ -74,12 +74,7 @@ exports.login = async (req, res) => {
         .status(401)
         .json({ error: 'User does not exist! Create an account to continue' });
     }
-    if (existingUser && existingUser.googleID) {
-      return res.status(409).json({
-        error:
-          'This email is registered with Google. Please sign in with Google.',
-      });
-    }
+  
 
     if (existingUser) {
       // compare password to allow login if there is a user
@@ -122,17 +117,27 @@ exports.logout = async (_, res) => {
 };
 
 exports.linkAccount = async (req, res) => {
-  const { token } = req.body;
-  console.log(token);
 
-  // retrieve the user object from the token
+  const { token, password } = req.body;
+  if (!password) {
+    return res.status(404).json({ error: 'Password is required' });
+  }
+  // retrieve the user stored from the token and decode it
   const payload = jwt.verify(token, process.env.JWT_SECRET);
   const { userEmail, googleID } = payload;
-  console.log(payload);
+
   const existingUser = await User.findOne({ email: userEmail });
   if (!existingUser) {
     return res.status(404).json({ error: 'User does not exist' });
   }
+
+  const comparePassword = bcrypt.compareSync(password, existingUser.password);
+
+  if (!comparePassword) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+  // add google ID to link account that initially signed in with email and password
   existingUser.googleID = googleID;
   await existingUser.save();
 

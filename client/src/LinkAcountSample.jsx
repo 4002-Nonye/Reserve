@@ -1,9 +1,11 @@
 import axios from 'axios';
+import { useState } from 'react';
 
 function LinkAcountSample() {
   const params = new URLSearchParams(window.location.search);
+  const [password, setPassword] = useState('');
   const token = params.get('token');
-  console.log(token);
+//   console.log(token);
 
   const handleLinkAccount = async () => {
     try {
@@ -11,10 +13,12 @@ function LinkAcountSample() {
         'http://localhost:3000/api/auth/link-account',
         {
           token,
+          password,
         },
         { withCredentials: true }
       );
-      console.log(data);
+      if (data.statusText === 'OK') window.location.href = '/';
+    //   console.log(data);
     } catch (error) {
       console.log(error);
     }
@@ -22,6 +26,9 @@ function LinkAcountSample() {
   return (
     <>
       <div>Do you want to link your account?</div>
+
+      <p>Enter password to confirm it is you</p>
+      <input type='text' onChange={(e) => setPassword(e.target.value)} />
 
       <button onClick={() => handleLinkAccount()}>Yes</button>
       <button>No</button>
