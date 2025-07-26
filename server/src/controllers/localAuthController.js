@@ -3,9 +3,10 @@ const mongoose = require('mongoose');
 const setAuthCookie = require('../utils/setAuthCookie');
 const sanitizeUser = require('../utils/sanitizeUser');
 const jwt = require('jsonwebtoken');
-const sendEmail = require('../utils/sendEmail');
+const sendEmail = require('../lib/sendEmail');
 require('dotenv').config();
 const crypto = require('crypto');
+const html = require('../utils/emailTemplates/resetPasswordTemplate');
 
 const User = mongoose.model('User');
 
@@ -45,7 +46,7 @@ exports.signup = async (req, res) => {
 
     // Create a JWT token for the newly registered user
     // Send the JWT token as an HTTP-only cookie
-    setAuthCookie(res, newUser._id);
+    setAuthCookie(res, newUser);
 
     // Destructure the user object to remove sensitive or unnecessary fields before sending to the client
     const safeToSendUser = sanitizeUser(newUser._doc);
@@ -78,6 +79,14 @@ exports.login = async (req, res) => {
     }
 
     if (existingUser) {
+      if (!existingUser.password) {
+        return res
+          .status(401)
+          .json({
+            error:
+              'This account was created using Google. Please sign in with Google instead.',
+          });
+      }
       // compare password to allow login if there is a user
       const comparePassword = bcrypt.compareSync(
         password,
@@ -89,7 +98,7 @@ exports.login = async (req, res) => {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
-      setAuthCookie(res, existingUser._id);
+      setAuthCookie(res, existingUser);
 
       // Destructure the user object to remove sensitive or unnecessary fields before sending to the client
       const safeToSendUser = sanitizeUser(existingUser._doc);
@@ -143,7 +152,7 @@ exports.linkAccount = async (req, res) => {
     existingUser.googleID = googleID;
     await existingUser.save();
 
-    setAuthCookie(res, googleID);
+    setAuthCookie(res, existingUser);
     return res.status(200).json({ message: 'Account linked successfully' });
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' });
@@ -174,19 +183,13 @@ exports.forgotPassword = async (req, res) => {
     // Send email with token
     const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}&email=${email}`;
 
-    const html = `
-    <h3>Password Reset Request</h3>
-    <p>Click the link below to reset your password:</p>
-    <a href="${resetLink}">${resetLink}</a>
-    <p>This link expires in 1 hour.</p>
-  `;
     try {
-      await sendEmail(email, 'Password Reset', html);
+      await sendEmail(email, 'Password Reset', html(resetLink));
       return res
         .status(200)
         .json({ message: 'Reset link sent to your email.' });
     } catch (error) {
-      console.error('Email send error:', error);
+     
       return res.status(500).json({ error: 'Failed to send reset email' });
     }
   } catch (error) {
@@ -219,4 +222,8 @@ exports.resetPassword = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' });
   }
+};
+
+exports.getUser = async (req, res) => {
+  res.status(200).json({ user: req.user });
 };

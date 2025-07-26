@@ -23,7 +23,7 @@ exports.authGoogleCallback = (req, res, next) =>
       res.send('User does not exist');
     }
 
-    setAuthCookie(res, user._id);
+    setAuthCookie(res, user);
 
     return res.redirect('/');
   })(req, res, next);

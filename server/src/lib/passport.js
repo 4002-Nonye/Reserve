@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const passport = require('passport');
 const sanitizeUser = require('../utils/sanitizeUser');
-
+const jwt =require('jsonwebtoken')
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 require('dotenv').config();

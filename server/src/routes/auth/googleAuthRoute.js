@@ -2,7 +2,7 @@ const express = require('express');
 const {
   authGoogle,
   authGoogleCallback,
-} = require('../controllers/oAuthController');
+} = require('../../controllers/oAuthController');
 const googleAuthRoute = express.Router();
 
 googleAuthRoute.get('/', authGoogle);

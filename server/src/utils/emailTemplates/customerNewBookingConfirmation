@@ -1,0 +1,27 @@
+const customerNewBookingConfirmation = (booking) => `
+  <div style="font-family: Arial, sans-serif; padding: 20px; color: #333">
+    <h2 style="color: #4CAF50">Booking Successful!</h2>
+    
+    <p>Hi ${booking.fullName},</p>
+
+    <p>Your booking for <strong>${
+      booking.serviceProvider
+    }</strong> was successful. Here are your booking details:</p>
+
+    <ul>
+      <li><strong>Booking ID:</strong> ${booking._id}</li>
+      <li><strong>Service:</strong> ${booking.service || 'Not specified'}</li>
+      <li><strong>Service Provider:</strong> ${booking.serviceProvider}</li>
+      <li><strong>Appointment Date:</strong> ${new Date(
+        booking.appointmentDate
+      ).toLocaleString()}</li>
+      <li><strong>Status:</strong> ${booking.status}</li>
+    </ul>
+
+    <p>You will be notified once the business confirms your booking so you can proceed with payment.</p>
+
+    <p style="margin-top: 30px; font-size: 16px; font-weight: bold;">Thanks,<br />The Reserve Team</p>
+  </div>
+`;
+
+module.exports = customerNewBookingConfirmation;

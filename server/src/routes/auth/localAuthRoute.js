@@ -1,5 +1,5 @@
 const express = require('express');
-const requireLogin = require('../middlewares/requireLogin');
+const requireLogin = require('../../middlewares/requireLogin');
 const {
   signup,
   login,
@@ -7,7 +7,8 @@ const {
   linkAccount,
   forgotPassword,
   resetPassword,
-} = require('../controllers/localAuthController');
+  getUser,
+} = require('../../controllers/localAuthController');
 
 const localAuthRoute = express.Router();
 
@@ -17,5 +18,6 @@ localAuthRoute.get('/logout', logout);
 localAuthRoute.post('/link-account', linkAccount);
 localAuthRoute.post('/forgot-password', requireLogin, forgotPassword);
 localAuthRoute.post('/reset-password', requireLogin, resetPassword);
+localAuthRoute.get('/user',requireLogin, getUser);
 
 module.exports = localAuthRoute;
