@@ -8,7 +8,12 @@ exports.authGoogle = passport.authenticate('google', {
 
 exports.authGoogleCallback = (req, res, next) =>
   passport.authenticate('google', { session: false }, (err, user, info) => {
-    // We receive the info to link account
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Something went wrong' });
+    }
+
+     // We receive the info to link account
 
     if (info?.message === 'LINK_ACCOUNT') {
       // retrieve the info stored in the token and attach to client URL
@@ -18,12 +23,6 @@ exports.authGoogleCallback = (req, res, next) =>
         `${process.env.CLIENT_URL}/link-account/?token=${token}`
       );
     }
-
-    if (!user) {
-      res.send('User does not exist');
-    }
-
-    setAuthCookie(res, user);
 
     return res.redirect('/');
   })(req, res, next);
