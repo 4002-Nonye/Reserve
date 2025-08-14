@@ -9,19 +9,23 @@ function NavBar() {
       <nav className='flex justify-between sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-sm px-10 py-4 items-center'>
         <div className='inline-flex items-start gap-1'>
           {' '}
-          <GrSchedulePlay  className='text-3xl'/>{' '}
-          <a href='/' className='font-bold text-xl '>
+          <GrSchedulePlay className='text-3xl' />{' '}
+          <Link href='/' className='font-bold text-xl '>
             Reserve
-          </a>
+          </Link>
         </div>
 
         <div>
           <ul className='flex gap-14 items-center text-gray-700'>
-             <li className='cursor-pointer'>
-              <SmoothScroll to='how-it-works' smooth={true} duration={500}>How it works</SmoothScroll>
+            <li className='cursor-pointer'>
+              <SmoothScroll to='features' smooth={true} duration={500}>
+                Features
+              </SmoothScroll>
             </li>
-            <li>
-              <Link to='/'>Features</Link>
+            <li className='cursor-pointer'>
+              <SmoothScroll to='how-it-works' smooth={true} duration={500}>
+                How it works
+              </SmoothScroll>
             </li>
             <li>
               <Link to='/'>Contact us</Link>

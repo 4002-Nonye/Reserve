@@ -3,19 +3,21 @@ import NavBar from '../components/NavBar';
 import { Element } from 'react-scroll';
 
 import hero from '../assets/hero.jpg';
+import SectionDivider from '../components/SectionDivider';
+import FeaturesGrid from '../components/FeaturesGrid';
 
 function HomePage() {
   return (
     <div>
       <NavBar />
-      <main className=' px-16'>
+      <main className=' px-16 text-gray-700'>
         <section className=' flex justify-between items-center'>
           <div className='flex flex-col gap-7 '>
             {' '}
-            <h1 className='font-bold text-4xl text-gray-700'>
+            <h1 className='font-bold text-4xl '>
               Your Services, Scheduled and Secured.
             </h1>
-            <p className='text-gray-700'>
+            <p>
               Reserve connects customers with trusted service providers <br />
               from hairdressers to nail technicians and beyond, <br /> making
               booking, payment, and communication <br />
@@ -34,9 +36,27 @@ function HomePage() {
           </div>
         </section>
 
+        <Element name='features'>
+          <section className='mt-16'>
+            <SectionDivider
+              sectionNumber='01'
+              wrapperStyle=' flex flex-col justify-center items-center'
+            />
+
+            {/* Features Grid */}
+            <FeaturesGrid />
+          </section>
+        </Element>
+
         <Element name='how-it-works'>
-          <section className='mt-96'>
-            <h2>How it works</h2>
+          <section className='mt-24'>
+            <SectionDivider
+              sectionNumber='02'
+              wrapperStyle=' flex flex-col justify-center items-center'
+            />
+
+
+            
           </section>
         </Element>
       </main>
